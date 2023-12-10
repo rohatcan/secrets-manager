@@ -11,3 +11,4 @@
 # */
 
 minikube delete
+docker rm -f mac-docker-registry-tunnel
