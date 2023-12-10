@@ -13,6 +13,7 @@
 # Get CPU and Memory from environment variables or default
 CPU_COUNT="${VSECM_MINIKUBE_CPU_COUNT:-8}"
 MEMORY="${VSECM_MINIKUBE_MEMORY:-11264m}"
+OS=$(uname -s)
 
 # Minikube might need additional flags for SPIRE to work properly.
 # A bare-metal or cloud Kubernetes cluster will not need these extra configs.
@@ -29,4 +30,8 @@ minikube start \
 echo "waiting 10 secs before enabling registry"
 sleep 10
 minikube addons enable registry
+if [ "$OS" == "Darwin" ]; then
+    echo "macOS detected, running mac-tunnel"
+    docker run -d -it --name=mac-docker-registry-tunnel --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
+fi
 kubectl get node
